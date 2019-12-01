@@ -10,6 +10,8 @@ class SimpleCache {
         this.expireTime = config.expireTime;
         // 指定过期时间：间隔多久，单位ms
         this.expireInterval = config.expireInterval;
+        // 支持的method，默认get
+        this.supportMethods = config.supportMethods ? config.supportMethods.map(m => m.toLowerCase()) : ['get']
         // 缓存
         this.cache = {};
         this.middleware = this.middleware.bind(this)
@@ -36,7 +38,7 @@ class SimpleCache {
             method
         } = ctx;
         const key = method + url;
-        if (this.pattern.test(url)) {
+        if (this.pattern.test(url) && this.supportMethods.indexOf(method.toLowerCase()) > -1) {
             var cacheData = this.cache[key];
             if (cacheData) {
                 ctx.body = cacheData;
@@ -52,7 +54,7 @@ class SimpleCache {
 
         await next()
 
-        if (this.pattern.test(url)) {
+        if (this.pattern.test(url) && this.supportMethods.indexOf(method.toLowerCase()) > -1) {
             // 如果匹配到对应的url，则缓存数据
             this.cache[key] = ctx.body;
             console.log('接口 %s %s 数据缓存成功', method, url)
