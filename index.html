@@ -1,0 +1,62 @@
+<html>
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js">
+    </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- <div>
+            <input v-model="username" />
+            <input v-model="password" />
+        </div> -->
+        <div>
+            <button v-on:click="getData">get获取数据</button>
+            <button v-on:click="postData">post获取数据</button>
+            <button v-on:click="getUserInfo">获取用户信息（不能缓存）</button>
+        </div>
+        <div>
+            <button @click="logs=[]">Clear Log</button>
+        </div>
+        <!-- 日志 -->
+        <ul>
+            <li v-for="(log,idx) in logs" :key="idx">
+                {{ log }}
+            </li>
+        </ul>
+    </div>
+    <script>
+        let idx = 0;
+        axios.interceptors.response.use(
+            response => {
+                app.logs.push(JSON.stringify(response.data));
+                return response;
+            },
+            err => {
+                app.logs.push(JSON.stringify(err));
+                return Promise.reject(err);
+            }
+        );
+        var app = new Vue({
+            el: "#app",
+            data: {
+                logs: []
+            },
+            methods: {
+                getData: async function () {
+                    await axios.get("/api/data/citys");
+                },
+                postData: async function () {
+                    await axios.post("/api/data/citys");
+                },
+                getUserInfo: async function () {
+                    await axios.get("/api/userInfo");
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
