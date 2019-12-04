@@ -7,8 +7,8 @@ app.use(static(__dirname + '/'))
 
 const cacheConfig = {
     pattern: /^\/api\/data\/\w+$/,
-    // expireTime: '17:19:50',
-    expireInterval: 5000
+    expireTime: '*/5 * * * * *',
+    // expireInterval: 5000
 }
 app.use(new SimpleCache(cacheConfig));
 

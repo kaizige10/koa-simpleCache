@@ -1,3 +1,5 @@
+const CronJob = require('cron').CronJob
+
 /**
  * 当前的功能较为简单，只能配置一种pattern进行缓存
  * 可改进点：传入pattern数组，分组进行缓存，清理缓存时也是分组清理的
@@ -6,8 +8,8 @@ class SimpleCache {
     constructor(config) {
         // 使用正则指定哪些接口需要缓存
         this.pattern = config.pattern;
-        // 指定过期时间：每天的固定时间
-        this.expireTime = config.expireTime;
+        // 指定过期时间：使用cron语法的字符串
+        this.expireTime = config.expireTime || '0 0 0 * * *';
         // 指定过期时间：间隔多久，单位ms
         this.expireInterval = config.expireInterval;
         // 支持的method，默认get
@@ -22,14 +24,11 @@ class SimpleCache {
     }
 
     clearFixedTimeCache() {
-        // 清理expireTime, 每秒钟对比一次进行清理
-        setInterval(() => {
-            const nowTimeStr = (new Date()).toTimeString().slice(0, 8);
-            if (nowTimeStr === this.expireTime) {
-                console.log('执行clearFixedTimeCache，时间为 %s', this.expireTime)
-                this.cache = {};
-            }
-        }, 1000);
+        // expireTime时清理缓存
+        new CronJob(this.expireTime, () => {
+            console.log('执行clearFixedTimeCache，时间为 %s', (new Date()).toLocaleString())
+            this.cache = {}
+        }, null, true);
     }
 
     async middleware(ctx, next) {
